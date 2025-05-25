@@ -12,11 +12,22 @@ class ModerationHandler:
         self.request_tracker = RequestTracker()
     
     async def handle_moderation(self, request: TextRequest) -> ModerationResponse:
-        """Handle text moderation request"""
+        """
+        Handle text moderation request
+        
+        Args:
+            request: TextRequest containing the text to moderate
+            
+        Returns:
+            ModerationResponse containing moderation scores
+            
+        Raises:
+            HTTPException: If moderation fails
+        """
         self.request_tracker.add_request()
         
         try:
-            scores = self.moderation_service.get_moderation_scores(request.text)
+            scores = self.moderation_service.get_moderation_scores(request)
             return ModerationResponse(scores=scores)
         except Exception as e:
             logger.error(f"Error processing request: {str(e)}")
