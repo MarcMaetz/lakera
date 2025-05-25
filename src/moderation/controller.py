@@ -11,6 +11,18 @@ class ModerationController:
     def _setup_routes(self):
         @self.router.post("/moderate", response_model=ModerationResponse)
         async def moderate_text(request: TextRequest):
+            """
+            Moderate text content using AI model.
+            
+            Args:
+                request: TextRequest containing the text to moderate
+                
+            Returns:
+                ModerationResponse containing scores for different categories
+                
+            Raises:
+                HTTPException: If moderation fails
+            """
             return await self.api.handler.handle_moderation(request)
 
 # Create router instance
