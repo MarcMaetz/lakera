@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from src.utils.logger import setup_app_logger
 from src.moderation.controller import router as moderation_router
+from src.config import API_TITLE, API_DESCRIPTION, API_VERSION, API_PREFIX
 
 # Configure logging
 logger = setup_app_logger(__name__)
@@ -8,15 +9,15 @@ logger = setup_app_logger(__name__)
 def create_app() -> FastAPI:
     """Create and configure the FastAPI application"""
     app = FastAPI(
-        title="Text Moderation API",
-        description="API for text moderation using AI models",
-        version="1.0.0",
+        title=API_TITLE,
+        description=API_DESCRIPTION,
+        version=API_VERSION,
         docs_url="/docs",
         redoc_url="/redoc"
     )
 
     # Include routers
-    app.include_router(moderation_router, tags=["moderation"])
+    app.include_router(moderation_router, prefix=API_PREFIX, tags=["moderation"])
 
     @app.get("/health")
     async def health_check():
