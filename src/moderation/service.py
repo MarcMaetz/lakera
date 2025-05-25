@@ -26,12 +26,9 @@ class ModerationService:
         try:
             # Get raw model output
             result = self.model(request.text)
-            print(f"Result type: {type(result)}")
-            print(f"Result: {result}")
             
             # Transform to dictionary
             scores = {item['label']: item['score'] for item in result}
-            logger.info(f"Transformed scores: {scores}")
             
             return scores
         except Exception as e:
