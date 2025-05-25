@@ -25,11 +25,36 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 logger.addHandler(log_handler)
 
+class RequestTracker:
+    def __init__(self):
+        self.windows = {
+            '1s': [],    # Last second
+            '1m': [],    # Last minute
+            '1h': []     # Last hour
+        }
+    
+    def add_request(self):
+        current_time = time.time()
+        for window, times in self.windows.items():
+            times.append(current_time)
+            # Remove old requests based on window size
+            if window == '1s':
+                times[:] = [t for t in times if current_time - t <= 1.0]
+            elif window == '1m':
+                times[:] = [t for t in times if current_time - t <= 60.0]
+            elif window == '1h':
+                times[:] = [t for t in times if current_time - t <= 3600.0]
+    
+    def get_stats(self):
+        return {
+            '1s': len(self.windows['1s']),
+            '1m': len(self.windows['1m']),
+            '1h': len(self.windows['1h'])
+        }
+
 app = FastAPI(title="Content Moderation API")
 moderation_service = ModerationService()
-
-# Simple request tracking
-request_times: List[float] = []
+request_tracker = RequestTracker()
 
 class TextRequest(BaseModel):
     text: str
@@ -39,16 +64,12 @@ class ModerationResponse(BaseModel):
 
 @app.post("/moderate", response_model=ModerationResponse)
 async def moderate_text(request: TextRequest):
-    # Track request time
-    current_time = time.time()
-    request_times.append(current_time)
+    # Track request
+    request_tracker.add_request()
     
-    # Remove requests older than 1 second
-    request_times[:] = [t for t in request_times if current_time - t <= 1.0]
-    
-    # Calculate and log requests per second
-    rps = len(request_times)
-    logger.info(f"Current requests per second: {rps}")
+    # Log request rates
+    stats = request_tracker.get_stats()
+    logger.info(f"Request rates - 1s: {stats['1s']}, 1m: {stats['1m']}, 1h: {stats['1h']}")
     
     try:
         # Get moderation scores
