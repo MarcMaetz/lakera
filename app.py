@@ -1,12 +1,9 @@
 from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
-from datetime import datetime
-import time
-from typing import Dict, List
 import uvicorn
 from service import ModerationService
 from tracker import RequestTracker
 from logger_config import setup_logger
+from models import TextRequest, ModerationResponse
 
 # Set up logger
 logger = setup_logger(__name__)
@@ -14,12 +11,6 @@ logger = setup_logger(__name__)
 app = FastAPI(title="Content Moderation API")
 moderation_service = ModerationService()
 request_tracker = RequestTracker()
-
-class TextRequest(BaseModel):
-    text: str
-
-class ModerationResponse(BaseModel):
-    scores: Dict[str, float]
 
 @app.post("/moderate", response_model=ModerationResponse)
 async def moderate_text(request: TextRequest):
