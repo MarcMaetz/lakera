@@ -1,12 +1,13 @@
 from pydantic import BaseModel, Field, validator
 from typing import Dict
+from src.config import TEXT_MIN_LENGTH, TEXT_MAX_LENGTH
 
 class TextRequest(BaseModel):
     """Request model for text moderation"""
     text: str = Field(
         ...,
-        min_length=1,
-        max_length=1000,
+        min_length=TEXT_MIN_LENGTH,
+        max_length=TEXT_MAX_LENGTH,
         description="Text to be moderated",
         example="This is a sample text to moderate"
     )
