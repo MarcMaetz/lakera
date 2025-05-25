@@ -1,12 +1,13 @@
 from transformers import pipeline
 from src.utils.logger import setup_app_logger
 from src.moderation.models import TextRequest
+from src.config import MODEL_NAME
 
 logger = setup_app_logger(__name__)
 
 class ModerationService:
     def __init__(self):
-        self.model = pipeline("text-classification", model="KoalaAI/Text-Moderation")
+        self.model = pipeline("text-classification", model=MODEL_NAME)
         logger.info("Moderation model loaded successfully")
     
     def get_moderation_scores(self, request: TextRequest) -> dict:
