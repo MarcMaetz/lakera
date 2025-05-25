@@ -1,7 +1,7 @@
 from transformers import pipeline
-from src.utils.logger import setup_logger
+from src.utils.logger import setup_app_logger
 
-logger = setup_logger(__name__)
+logger = setup_app_logger(__name__)
 
 class ModerationService:
     def __init__(self):

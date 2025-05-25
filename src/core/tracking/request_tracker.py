@@ -1,102 +1,41 @@
-from datetime import datetime
 import time
-from typing import Dict, List
-import json
-from pathlib import Path
-from src.utils.logger import setup_logger
+from collections import deque
+from typing import Deque
+from src.utils.logger import setup_rps_logger
 
-logger = setup_logger(__name__)
+rps_logger = setup_rps_logger()
 
 class RequestTracker:
-    def __init__(self, storage_file='logs/request_data.json'):
-        self.storage_file = storage_file
-        self.windows = {
-            '1s': [],    # Last second
-            '1m': [],    # Last minute
-            '1h': []     # Last hour
-        }
-        self.load_data()
-    
-    def add_request(self):
-        current_time = time.time()
-        for window, times in self.windows.items():
-            times.append(current_time)
-            # Remove old requests based on window size
-            if window == '1s':
-                times[:] = [t for t in times if current_time - t <= 1.0]
-            elif window == '1m':
-                times[:] = [t for t in times if current_time - t <= 60.0]
-            elif window == '1h':
-                times[:] = [t for t in times if current_time - t <= 3600.0]
+    def __init__(self, window_size: int = 60):
+        """
+        Initialize the request tracker with a sliding window.
         
-        # Save data after each request
-        self.save_data()
+        Args:
+            window_size: Size of the sliding window in seconds (default: 60)
+        """
+        self.window_size = window_size
+        self.requests: Deque[float] = deque()  # Only store timestamps
     
-    def get_stats(self):
-        return {
-            '1s': len(self.windows['1s']),
-            '1m': len(self.windows['1m']),
-            '1h': len(self.windows['1h'])
-        }
+    def add_request(self) -> None:
+        """Add a new request to the tracker and log the current RPS."""
+        current_time = time.time()
+        self.requests.append(current_time)
+        self._cleanup_old_requests(current_time)
+        self._log_rps(current_time)
     
-    def format_timestamp(self, timestamp: float) -> str:
-        """Convert Unix timestamp to human-readable format"""
-        return datetime.fromtimestamp(timestamp).strftime('%Y-%m-%d %H:%M:%S.%f')
+    def _cleanup_old_requests(self, current_time: float) -> None:
+        """Remove requests older than the window size."""
+        while self.requests and current_time - self.requests[0] > self.window_size:
+            self.requests.popleft()
     
-    def get_formatted_stats(self) -> Dict[str, List[str]]:
-        """Get stats with human-readable timestamps"""
-        return {
-            window: [self.format_timestamp(float(t)) for t in times]
-            for window, times in self.windows.items()
-        }
-    
-    def save_data(self):
-        """Save current request data to file"""
-        try:
-            # Convert timestamps to strings for JSON serialization
-            data = {
-                window: [str(t) for t in times]
-                for window, times in self.windows.items()
-            }
-            
-            with open(self.storage_file, 'w') as f:
-                json.dump(data, f, indent=4)  # Add indentation for readability
-            
-            logger.debug("Request data saved successfully")
-        except Exception as e:
-            logger.error(f"Error saving request data: {str(e)}")
-    
-    def load_data(self):
-        """Load request data from file"""
-        try:
-            if Path(self.storage_file).exists():
-                with open(self.storage_file, 'r') as f:
-                    data = json.load(f)
-                
-                # Convert string timestamps back to floats
-                self.windows = {
-                    window: [float(t) for t in times]
-                    for window, times in data.items()
-                }
-                
-                # Clean up old data
-                current_time = time.time()
-                for window, times in self.windows.items():
-                    if window == '1s':
-                        times[:] = [t for t in times if current_time - t <= 1.0]
-                    elif window == '1m':
-                        times[:] = [t for t in times if current_time - t <= 60.0]
-                    elif window == '1h':
-                        times[:] = [t for t in times if current_time - t <= 3600.0]
-                
-                logger.info("Request data loaded successfully")
-            else:
-                logger.info("No existing request data found")
-        except Exception as e:
-            logger.error(f"Error loading request data: {str(e)}")
-            # Initialize with empty data if loading fails
-            self.windows = {
-                '1s': [],
-                '1m': [],
-                '1h': []
-            } 
+    def _log_rps(self, current_time: float) -> None:
+        """Calculate and log the current RPS."""
+        if not self.requests:
+            return
+        
+        window_start = current_time - self.window_size
+        recent_requests = [req for req in self.requests if req >= window_start]
+        
+        if recent_requests:
+            rps = len(recent_requests) / self.window_size
+            rps_logger.info("RPS: %.2f", rps) 

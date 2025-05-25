@@ -1,10 +1,10 @@
 from fastapi import APIRouter, HTTPException
 from src.core.tracking.request_tracker import RequestTracker
-from src.utils.logger import setup_logger
+from src.utils.logger import setup_app_logger
 from src.moderation.models import TextRequest, ModerationResponse
 from src.moderation.service import ModerationService
 
-logger = setup_logger(__name__)
+logger = setup_app_logger(__name__)
 
 class ModerationAPI:
     def __init__(self):
@@ -18,11 +18,6 @@ class ModerationAPI:
         async def moderate_text(request: TextRequest):
             # Track request
             self.request_tracker.add_request()
-            
-            # Log request rates with human-readable timestamps
-            stats = self.request_tracker.get_formatted_stats()
-            logger.info(f"Request rates - 1s: {len(stats['1s'])}, 1m: {len(stats['1m'])}, 1h: {len(stats['1h'])}")
-            logger.info(f"Recent requests - 1s: {stats['1s']}")
             
             try:
                 # Get moderation scores
