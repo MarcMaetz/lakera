@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 import uvicorn
-from src.moderation.api import router
+from moderation.api import router
 
 app = FastAPI(title="Content Moderation API")
 app.include_router(router)

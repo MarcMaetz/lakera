@@ -1,8 +1,8 @@
 from fastapi import APIRouter, HTTPException
-from src.core.tracking.request_tracker import RequestTracker
-from src.utils.logger import setup_logger
-from src.moderation.models import TextRequest, ModerationResponse
-from src.moderation.service import ModerationService
+from core.tracking.request_tracker import RequestTracker
+from utils.logger import setup_logger
+from moderation.models import TextRequest, ModerationResponse
+from moderation.service import ModerationService
 
 logger = setup_logger(__name__)
 
