@@ -3,9 +3,9 @@ import time
 from typing import Dict, List
 import json
 from pathlib import Path
-import logging
+from logger_config import setup_logger
 
-logger = logging.getLogger(__name__)
+logger = setup_logger(__name__)
 
 class RequestTracker:
     def __init__(self, storage_file='logs/request_data.json'):
