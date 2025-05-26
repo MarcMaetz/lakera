@@ -2,7 +2,7 @@ from transformers import pipeline
 from fastapi import HTTPException
 from src.utils.logger import setup_app_logger
 from src.moderation.models import TextRequest, ModerationResponse, HealthResponse
-from src.core.tracking.request_tracker import RequestTracker
+from src.tracking.request_tracker import RequestTracker
 from src.config import MODEL_NAME
 
 logger = setup_app_logger(__name__)

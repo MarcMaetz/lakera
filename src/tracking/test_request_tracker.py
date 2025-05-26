@@ -1,6 +1,6 @@
 import time
 import pytest
-from .request_tracker import RequestTracker
+from src.tracking.request_tracker import RequestTracker
 
 @pytest.fixture
 def tracker():
