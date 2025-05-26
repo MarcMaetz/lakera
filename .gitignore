@@ -27,4 +27,4 @@ logs/
 .env
 
 # Other
-.zip
+*.zip
