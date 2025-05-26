@@ -1,12 +1,11 @@
 from fastapi import APIRouter
 from src.moderation.models import TextRequest, ModerationResponse
 from src.moderation.api import ModerationAPI
-from src.config import API_PREFIX
 
 class ModerationController:
     def __init__(self):
         self.api = ModerationAPI()
-        self.router = APIRouter(prefix=API_PREFIX)
+        self.router = APIRouter()
         self._setup_routes()
     
     def _setup_routes(self):

@@ -8,7 +8,6 @@ TEXT_MAX_LENGTH = 1000
 MODEL_NAME = "KoalaAI/Text-Moderation"
 
 # API settings
-API_PREFIX = "/api/v1"
 API_TITLE = "Text Moderation API"
 API_VERSION = "1.0.0"
 API_DESCRIPTION = "API for text moderation using AI models"
