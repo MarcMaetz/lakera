@@ -3,7 +3,6 @@ from src.utils.logger import setup_app_logger
 from src.moderation.controller import router as moderation_router
 from src.config import API_TITLE, API_DESCRIPTION, API_VERSION
 
-# Configure logging
 logger = setup_app_logger(__name__)
 
 def create_app() -> FastAPI:
@@ -16,10 +15,8 @@ def create_app() -> FastAPI:
         redoc_url="/redoc"
     )
 
-    # Include routers
-    app.include_router(moderation_router, tags=["moderation"])
+    app.include_router(moderation_router)
 
     return app
 
-# Create the application instance
 app = create_app() 
