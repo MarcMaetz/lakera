@@ -35,4 +35,12 @@ class ModerationResponse(BaseModel):
         for category, score in v.items():
             if not 0 <= score <= 1:
                 raise ValueError(f"Score for {category} must be between 0 and 1")
-        return v 
+        return v
+
+class HealthResponse(BaseModel):
+    """Response model for health check endpoint"""
+    status: str = Field(
+        "healthy",
+        description="Service health status",
+        example="healthy"
+    ) 

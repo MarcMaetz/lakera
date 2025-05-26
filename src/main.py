@@ -19,10 +19,6 @@ def create_app() -> FastAPI:
     # Include routers
     app.include_router(moderation_router, tags=["moderation"])
 
-    @app.get("/health")
-    async def health_check():
-        return {"status": "healthy"}
-
     return app
 
 # Create the application instance
