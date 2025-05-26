@@ -2,34 +2,37 @@
 import os
 import sys
 import uvicorn
-from typing import Optional
+from fastapi import FastAPI
+from src.utils.logger import setup_app_logger
+from src.moderation.controller import router as moderation_router
+from src.config import API_TITLE, API_DESCRIPTION, API_VERSION
 
-def setup_environment():
-    """Configure the Python environment for development"""
-    # Add the project root to Python path
-    project_root = os.path.dirname(os.path.abspath(__file__))
-    sys.path.insert(0, project_root)
+# Configure environment
+project_root = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, project_root)
+os.environ["PYTHONDONTWRITEBYTECODE"] = "1"
 
-    # Prevent Python from writing .pyc files
-    os.environ["PYTHONDONTWRITEBYTECODE"] = "1"
+# Configure logging
+logger = setup_app_logger(__name__)
 
-def run_server(
-    host: str = "0.0.0.0",
-    port: int = 8000,
-    reload: bool = True,
-    log_level: str = "info"
-):
-    """Run the development server with the specified configuration"""
-    setup_environment()
-    
-    uvicorn.run(
-        "src.main:app",
-        host=host,
-        port=port,
-        reload=reload,
-        log_level=log_level,
-        reload_dirs=[os.path.dirname(os.path.abspath(__file__))]
-    )
+# Create FastAPI app
+app = FastAPI(
+    title=API_TITLE,
+    description=API_DESCRIPTION,
+    version=API_VERSION,
+    docs_url="/docs",
+    redoc_url="/redoc"
+)
+
+# Include routers
+app.include_router(moderation_router)
 
 if __name__ == "__main__":
-    run_server() 
+    uvicorn.run(
+        "run:app",
+        host="0.0.0.0",
+        port=8000,
+        reload=True,
+        log_level="info",
+        reload_dirs=[project_root]
+    ) 
