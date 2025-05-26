@@ -1,6 +1,8 @@
 from transformers import pipeline
+from fastapi import HTTPException
 from src.utils.logger import setup_app_logger
-from src.moderation.models import TextRequest
+from src.moderation.models import TextRequest, ModerationResponse, HealthResponse
+from src.core.tracking.request_tracker import RequestTracker
 from src.config import MODEL_NAME
 
 logger = setup_app_logger(__name__)
@@ -8,29 +10,45 @@ logger = setup_app_logger(__name__)
 class ModerationService:
     def __init__(self):
         self.model = pipeline("text-classification", model=MODEL_NAME)
+        self.request_tracker = RequestTracker()
         logger.info(f"Moderation model {MODEL_NAME} loaded successfully")
     
-    def get_moderation_scores(self, request: TextRequest) -> dict:
+    async def moderate_text(self, request: TextRequest) -> ModerationResponse:
         """
-        Get moderation scores for the given text.
+        Moderate text content using AI model.
         
         Args:
             request: TextRequest containing the text to moderate
             
         Returns:
-            Dictionary of moderation scores
+            ModerationResponse containing the moderation scores
             
         Raises:
-            Exception: If moderation fails
+            HTTPException: If moderation fails
         """
         try:
-            # Get raw model output
+            # Track request
+            self.request_tracker.add_request()
+            
+            # Process moderation
             result = self.model(request.text)
-            
-            # Transform to dictionary
             scores = {item['label']: item['score'] for item in result}
-            
-            return scores
+            return ModerationResponse(scores=scores)
         except Exception as e:
             logger.error(f"Error in moderation: {str(e)}")
-            raise 
+            raise HTTPException(status_code=500, detail=str(e))
+    
+    async def check_health(self) -> HealthResponse:
+        """
+        Check the health of the moderation service.
+        
+        Returns:
+            HealthResponse indicating service status
+        """
+        try:
+            if not self.model:
+                raise Exception("Model not loaded")
+            return HealthResponse()
+        except Exception as e:
+            logger.error(f"Health check failed: {str(e)}")
+            raise HTTPException(status_code=503, detail="Service unhealthy") 
