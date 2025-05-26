@@ -10,20 +10,26 @@ python -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
 ```
 
-2. Install dependencies:
+2. Install the package in development mode:
 ```bash
-pip install -r requirements.txt
+pip install -e .
 ```
 
-3. Run the service:
+3. Install development dependencies (for testing):
 ```bash
-python app.py
+pip install -e ".[dev]"
+```
+
+4. Run the service:
+```bash
+python run.py
 ```
 
 The service will be available at `http://localhost:8000`
 
 ## API Usage
 
+### Moderate Text
 Send a POST request to `/moderate` with a JSON body containing the text to moderate:
 
 ```bash
@@ -32,9 +38,36 @@ curl -X POST "http://localhost:8000/moderate" \
      -d '{"text": "Your text to moderate here"}'
 ```
 
-The response will include:
-- Moderation scores for each category
-- Current requests per second
+The response will include moderation scores for each category.
+
+### Health Check
+Check the service health:
+
+```bash
+curl "http://localhost:8000/health"
+```
+
+## Development
+
+### Running Tests
+```bash
+pytest src/tracking/test_request_tracker.py -v
+```
+
+### Project Structure
+```
+src/
+├── moderation/
+│   ├── controller.py    # FastAPI routes
+│   ├── models.py        # Pydantic models
+│   └── service.py       # Business logic
+├── tracking/
+│   ├── request_tracker.py    # Request tracking
+│   └── test_request_tracker.py
+├── utils/
+│   └── logger.py
+└── config.py
+```
 
 ## Production Considerations
 
