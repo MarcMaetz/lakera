@@ -54,21 +54,6 @@ curl "http://localhost:8000/health"
 pytest src/tracking/test_request_tracker.py -v
 ```
 
-### Project Structure
-```
-src/
-├── moderation/
-│   ├── controller.py    # FastAPI routes
-│   ├── models.py        # Pydantic models
-│   └── service.py       # Business logic
-├── tracking/
-│   ├── request_tracker.py    # Request tracking
-│   └── test_request_tracker.py
-├── utils/
-│   └── logger.py
-└── config.py
-```
-
 ## Production Considerations
 
 For a production MVP, consider:
