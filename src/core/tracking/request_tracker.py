@@ -2,16 +2,17 @@ import time
 from collections import deque
 from typing import Deque
 from src.utils.logger import setup_rps_logger
+from src.config import RPS_WINDOW_SIZE
 
 rps_logger = setup_rps_logger()
 
 class RequestTracker:
-    def __init__(self, window_size: int = 60):
+    def __init__(self, window_size: int = RPS_WINDOW_SIZE):
         """
         Initialize the request tracker with a sliding window.
         
         Args:
-            window_size: Size of the sliding window in seconds (default: 60)
+            window_size: Size of the sliding window in seconds (default: from config)
         """
         self.window_size = window_size
         self.requests: Deque[float] = deque()  # Only store timestamps
